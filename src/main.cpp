@@ -2,7 +2,17 @@
 #include <LiquidCrystal.h>
 
 const int buttonPin = 7;
-int mode = 0;
+
+enum Mode
+{
+  CPU = 0,
+  FAN,
+  WIFI,
+};
+
+const int modeNum = 3;
+Mode mode = CPU;
+
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 float *readCPU();
 void printCPU(float *CPU_Info);
@@ -18,15 +28,20 @@ void setup()
 void loop()
 {
   if (digitalRead(buttonPin) == HIGH)
-    mode = (mode + 1) % 2;
+    mode = static_cast<Mode>((mode + 1) % modeNum);
+
   lcd.clear();
+
   switch (mode)
   {
-  case 0:
+  case CPU:
     printCPU(readCPU());
     break;
-  case 1:
+  case FAN:
     lcd.print("Hello World!");
+    break;
+  case WIFI:
+    lcd.print("World!");
     break;
   default:
     break;
@@ -37,21 +52,16 @@ void loop()
 
 float *readCPU()
 {
-  static float cpuData[2];
+  static float cpuData[2] = {-1, -1};
   if (Serial.available())
   {
     String inputString = Serial.readStringUntil('\n');
     inputString.trim();
-    // string format: "TempintFloatFreq" -> 273.41
+
     float Temp = inputString.substring(0, 2).toFloat();
     float Freq = inputString.substring(2).toFloat();
     cpuData[0] = Temp;
     cpuData[1] = Freq;
-  }
-  else // the bash script has a problem
-  {
-    cpuData[0] = -1;
-    cpuData[1] = -1;
   }
   return cpuData;
 }
@@ -60,7 +70,7 @@ void printCPU(float *CPU_Info)
 {
   lcd.print("CPU Temp:");
   lcd.setCursor(9, 0);
-  lcd.print((int)CPU_Info[0]);
+  lcd.print(static_cast<int>(CPU_Info[0]));
   lcd.setCursor(12, 0);
   lcd.print("C");
 
