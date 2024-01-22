@@ -81,14 +81,17 @@ void loop()
 // Read data from serial port to return Sensors Data
 void readData(SensorData &data)
 {
+  Serial.println("readData");
   if (Serial.available() > 0)
   {
+  Serial.println("serial available");
+
     String inputString = Serial.readStringUntil('\n');
     inputString.trim();
-    String *sensorsData = split(inputString, " ");
+    String *sensorsData = split(inputString, ";");
     Serial.println(sensorsData[mode]);
-    // format of inputString: "sensorName->value1,value2 sensorName->value1,value2 ..."
-    String *sensorData = split(sensorsData[mode], "->");
+    // format of inputString: "sensorName vrustalue1,value2;sensorName value1,value2 ..."
+    String *sensorData = split(sensorsData[mode], " ");
     data.value1 = sensorData[1].substring(0, sensorData[1].indexOf(",")).c_str();
     data.value2 = sensorData[1].substring(sensorData[1].indexOf(",") + 1).c_str();
   }
