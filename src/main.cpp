@@ -44,8 +44,8 @@ String *split(String str, String separator);
 void setup()
 {
   lcd.begin(16, 2);
-  analogWrite(10, 90);
   Serial.begin(9600);
+  analogWrite(10, 90);
   DDRD &= ~(1 << BUTTON_PIN); // set button pin as input
 }
 
@@ -53,6 +53,7 @@ void loop()
 {
   if (PIND & (1 << BUTTON_PIN))
     mode = static_cast<Mode>((mode + 1) % MODE_NUM);
+  // rajouter un interupt -> PCINTO pour le bouton
 
   lcd.clear();
   switch (mode)
@@ -84,10 +85,10 @@ void readData(SensorData &data)
   Serial.println("readData");
   if (Serial.available() > 0)
   {
-  Serial.println("serial available");
-
+    Serial.println("serial available");
     String inputString = Serial.readStringUntil('\n');
     inputString.trim();
+    Serial.println(inputString);
     String *sensorsData = split(inputString, ";");
     Serial.println(sensorsData[mode]);
     // format of inputString: "sensorName vrustalue1,value2;sensorName value1,value2 ..."
