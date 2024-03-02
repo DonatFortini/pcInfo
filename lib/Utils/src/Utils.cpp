@@ -32,16 +32,10 @@ void readData(SensorData *data, int mode)
 {
   if (Serial.available() > 0)
   {
-    String inputString = "";
-    while (Serial.available())
-    {
-      char c = Serial.read();
-      inputString += c;
-    }
-    String *dataArray = split(inputString, ";");
-    String *finalData = split(dataArray[mode], "_");
-    data->value1 = finalData[1].substring(0, finalData[1].indexOf(",")).c_str();
-    data->value2 = finalData[1].substring(finalData[1].indexOf(",") + 1).c_str();
+    int cpuTemp, fanSpeed, fanPower;
+    float cpuFreq, ramUsage, ramFreq, upldSpeed, dwldSpeed;
+    sscanf(Serial.readString().c_str(), "%d %f %d %d %d %f %f %f", &cpuTemp, &cpuFreq, &fanSpeed, &fanPower, &ramUsage, &ramFreq, &upldSpeed, &dwldSpeed);
+    Serial.println(cpuTemp);
   }
 }
 
@@ -57,28 +51,4 @@ void printData(const SensorData *data, LiquidCrystal lcd)
   lcd.print(data->label2);
   lcd.print(data->value2);
   lcd.print(data->unit2);
-}
-
-// Split a string by separator and return an array of string 
-//similar to the split function in Python
-String *split(String str, String separator)
-{
-  int count = 0, i = 0, len = (int)str.length(), start = 0;
-  int separatorIndex[len];
-  while (count < len)
-  {
-    separatorIndex[i] = str.indexOf(separator, count);
-    if (separatorIndex[i] == -1)
-      break;
-    count = separatorIndex[i] + separator.length();
-    ++i;
-  }
-  String *result = new String[i + 1];
-  for (int j = 0; j < i; ++j)
-  {
-    result[j] = str.substring(start, separatorIndex[j]);
-    start = separatorIndex[j] + separator.length();
-  }
-  result[i] = str.substring(start);
-  return result;
 }

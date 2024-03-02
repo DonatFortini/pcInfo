@@ -31,6 +31,6 @@ ISR(PCINT2_vect)
 void loop()
 {
   readData(sensorData, mode);
-  printData(sensorData, lcd);
+  //printData(sensorData, lcd);
   delay(2400);
 }
