@@ -1,6 +1,6 @@
 #include "Utils.h"
 
-// Initialize the SensorData object according to the mode
+// Initialize the SensorData object based on the mode
 SensorData *initializeSensorData(int mode)
 {
   SensorData *sd;
@@ -10,10 +10,10 @@ SensorData *initializeSensorData(int mode)
     sd = new SensorData("CPU", "CPU_TMP:", "C", "CPU_FRQ:", "GHz");
     break;
   case FAN:
-    sd = new SensorData("FAN", "FAN_SPD:", "RPM", "FAN_PWR:", "W");
+    sd = new SensorData("FAN", "SPD:", "RPM", "FAN_PWR:", "W");
     break;
   case WIFI:
-    sd = new SensorData("WIFI", "UPLD:", "Kb/s", "DWLD:", "Kb/s");
+    sd = new SensorData("WIFI", "UP:", "Kb/s", "DL:", "Kb/s");
     break;
   case RAM:
     sd = new SensorData("RAM", "RAM_USD:", "%", "RAM_FRQ:", "GHz");
@@ -26,21 +26,68 @@ SensorData *initializeSensorData(int mode)
   return sd;
 }
 
-// Read data from serial port and stores it in a the SensorData object passed as parameter
-// format of inputString: "sensorName value1,value2;sensorName value1,value2 ..."
-void readData(SensorData *data, int mode)
+// Read data from serial port and store it in the SensorData object passed as a parameter
+// The format of inputString: "sensorName value1,value2;sensorName value1,value2 ..."
+void readData(int mode, LiquidCrystal lcd, SensorData *data)
 {
-  if (Serial.available() > 0)
+  String values[8];
+  String previousValue1 = data->value1;
+  String previousValue2 = data->value2;
+  String previousName = data->sensorName;
+
+  while (Serial.available())
   {
-    int cpuTemp, fanSpeed, fanPower;
-    float cpuFreq, ramUsage, ramFreq, upldSpeed, dwldSpeed;
-    sscanf(Serial.readString().c_str(), "%d %f %d %d %d %f %f %f", &cpuTemp, &cpuFreq, &fanSpeed, &fanPower, &ramUsage, &ramFreq, &upldSpeed, &dwldSpeed);
-    Serial.println(cpuTemp);
+    String inputString = Serial.readString();
+    int index = 0;
+    int start = 0;
+    int end = inputString.indexOf(' ');
+    while (end != -1)
+    {
+      values[index] = inputString.substring(start, end);
+      start = end + 1;
+      end = inputString.indexOf(' ', start);
+      index++;
+    }
+    values[index] = inputString.substring(start);
+
+    String newVal1;
+    String newVal2;
+    SensorData* newData;
+
+    
+  }
+
+  if ((strcmp(data->value1, previousValue1.c_str()) != 0 || strcmp(data->value2, previousValue2.c_str()) != 0) || (strcmp(previousName.c_str(), data->sensorName)))
+  {
+    Serial.println("Displaying data");
+    data= new SensorData(data->sensorName, data->label1, data->unit1, data->label2, data->unit2);
+    switch (mode)
+    {
+    case CPU:
+       data->value1= values[0].c_str();
+      data->value2 = values[1].c_str();
+      break;
+    case FAN:
+      data->value1 = values[2].c_str();
+      data->value2 = values[3].c_str();
+      break;
+    case WIFI:
+      data->value1 = values[4].c_str();
+      data->value2 = values[5].c_str();
+      break;
+    case RAM:
+      data->value1 = values[6].c_str();
+      data->value2 = values[7].c_str();
+      break;
+    default:
+      break;
+    }
+    displayData(data, lcd);
   }
 }
 
-// Display the data on LCD
-void printData(const SensorData *data, LiquidCrystal lcd)
+// Display the data on the LCD
+void displayData(const SensorData *data, LiquidCrystal lcd)
 {
   lcd.clear();
   lcd.setCursor(0, 0);

@@ -15,7 +15,9 @@ def get_cpu_values() -> str:
     freq = psutil.cpu_freq(
         percpu=True) if platform in supported_platforms else psutil.cpu_freq()
     temp = psutil.sensors_temperatures()
-    return f"{temp} {str(freq)var:.2f}"
+    temp = temp[list(temp.keys())[0]][0].current
+    freq = freq[0].current if platform in supported_platforms else freq.current
+    return f"{temp} {freq/1000:.1f}"
 
 
 def get_fan_values() -> str:
@@ -23,10 +25,12 @@ def get_fan_values() -> str:
     et la consommation electrique en watt
 
     Returns:
-        tuple(int, int): (RPM, watt)
+        tuple(int, float): (RPM, watt)
     """
-
-    return "242 252"
+    fan = psutil.sensors_fans()
+    sum_values = [i.current for i in fan[list(fan.keys())[0]]]
+    sorted_values = sorted(sum_values)
+    return f"{sorted_values[len(sorted_values)//2]} {len(sorted_values) * 0.5}"
 
 
 def get_ram_values() -> str:
@@ -38,7 +42,7 @@ def get_ram_values() -> str:
     ram = psutil.virtual_memory()
     ram_percent = ram.percent
     ram_total = ram.total / (1024 ** 3)
-    return f"{ram_percent} {ram_total:.2f}"
+    return f"{ram_percent} {ram_total:.1f}"
 
 
 def get_wifi_values() -> str:
@@ -48,7 +52,11 @@ def get_wifi_values() -> str:
         (float, float): (upload, download)
     """
     up, down = psutil.net_io_counters()[:2]
-    return f"{up/1024**2} {down/1024**2}"
+    up = f"{up/1024**2:.1f}" if up/1024**2 % 100 == up / \
+        1024**2 else f"{float(int(up/1024**2))}"
+    down = f"{down/1024**2:.1f}" if down/1024**2 % 100 == down / \
+        1024**2 else f"{float(int(down/1024**2))}"
+    return f"{up} {down}"
 
 
 def get_serial_port() -> str:
@@ -74,17 +82,15 @@ def main():
         fan_value = get_fan_values().split(' ')
         ram_value = get_ram_values().split(' ')
         wifi_value = get_wifi_values().split(' ')
-
         data_to_send = f"{cpu_value[0]} {cpu_value[1]} {fan_value[0]} {fan_value[1]} {ram_value[0]} {ram_value[1]} {wifi_value[0]} {wifi_value[1]}"
-        print(data_to_send)
 
         try:
             with serial.Serial(port, baudrate=9600, timeout=1) as ser:
                 ser.write(data_to_send.encode())
-        except serial.SerialException as e:
+        except Exception as e:
             print(f"Error: {e}")
 
-        time.sleep(12)
+        time.sleep(2)
 
 
 if __name__ == "__main__":

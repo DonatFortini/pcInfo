@@ -34,8 +34,7 @@ public:
 };
 
 SensorData *initializeSensorData(int mode);
-void readData(SensorData *data, int mode);
-void printData(const SensorData *data, LiquidCrystal lcd);
-String *split(String str, String separator);
+void readData(int mode, LiquidCrystal lcd, SensorData *data);
+void displayData(const SensorData *data, LiquidCrystal lcd);
 
 #endif
