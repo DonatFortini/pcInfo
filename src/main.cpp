@@ -1,31 +1,27 @@
 #include <Arduino.h>
-#include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 #include <Utils.h>
 
 #define BUTTON_PIN 3
 #define MODE_NUM 4
-#define contrast 100
 
-LiquidCrystal lcd(12, 11, 5, 4, 7, 6);
-Mode mode = CPU;
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+volatile Mode mode = CPU;
 SensorData *sensorData;
+void changeMode()
+{
+  mode = static_cast<Mode>((mode + 1) % MODE_NUM);
+  Serial.println("interrupt");
+}
 
 void setup()
 {
-  lcd.begin(16, 2);
-  Serial.begin(9600);
-  analogWrite(10, contrast);        // PC INT2
-  DDRD &= ~(1 << BUTTON_PIN); // set button pin as input
-  PCICR |= B00000100;         // enable interrupt on the group PC INT2
-  PCMSK2 |= B00001000;        // enable interrupt on button pin
+  lcd.init();
+  lcd.backlight();
+  Serial.begin(9600); // PC INT2
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), changeMode, FALLING);
   sensorData = initializeSensorData(mode);
-}
-
-ISR(PCINT2_vect)
-{
-  mode = static_cast<Mode>((mode + 1) % MODE_NUM);
-  readData(mode, lcd, sensorData);
- 
 }
 
 void loop()

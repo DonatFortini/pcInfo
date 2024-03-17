@@ -2,7 +2,7 @@
 #define UTILS_H
 
 #include <Arduino.h>
-#include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 
 typedef enum
 {
@@ -34,7 +34,7 @@ public:
 };
 
 SensorData *initializeSensorData(int mode);
-void readData(int mode, LiquidCrystal lcd, SensorData *data);
-void displayData(const SensorData *data, LiquidCrystal lcd);
+void readData(int mode, LiquidCrystal_I2C lcd, SensorData *data);
+void displayData(const SensorData *data, LiquidCrystal_I2C lcd);
 
 #endif

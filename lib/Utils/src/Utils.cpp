@@ -28,7 +28,7 @@ SensorData *initializeSensorData(int mode)
 
 // Read data from serial port and store it in the SensorData object passed as a parameter
 // The format of inputString: "sensorName value1,value2;sensorName value1,value2 ..."
-void readData(int mode, LiquidCrystal lcd, SensorData *data)
+void readData(int mode, LiquidCrystal_I2C lcd, SensorData *data)
 {
   String values[8];
   String previousValue1 = data->value1;
@@ -37,6 +37,7 @@ void readData(int mode, LiquidCrystal lcd, SensorData *data)
 
   while (Serial.available())
   {
+    Serial.println("Reading data");
     String inputString = Serial.readString();
     int index = 0;
     int start = 0;
@@ -49,22 +50,17 @@ void readData(int mode, LiquidCrystal lcd, SensorData *data)
       index++;
     }
     values[index] = inputString.substring(start);
-
-    String newVal1;
-    String newVal2;
-    SensorData* newData;
-
-    
   }
 
-  if ((strcmp(data->value1, previousValue1.c_str()) != 0 || strcmp(data->value2, previousValue2.c_str()) != 0) || (strcmp(previousName.c_str(), data->sensorName)))
+  if (true)
+
   {
     Serial.println("Displaying data");
-    data= new SensorData(data->sensorName, data->label1, data->unit1, data->label2, data->unit2);
+    data = new SensorData(data->sensorName, data->label1, data->unit1, data->label2, data->unit2);
     switch (mode)
     {
     case CPU:
-       data->value1= values[0].c_str();
+      data->value1 = values[0].c_str();
       data->value2 = values[1].c_str();
       break;
     case FAN:
@@ -87,7 +83,7 @@ void readData(int mode, LiquidCrystal lcd, SensorData *data)
 }
 
 // Display the data on the LCD
-void displayData(const SensorData *data, LiquidCrystal lcd)
+void displayData(const SensorData *data, LiquidCrystal_I2C lcd)
 {
   lcd.clear();
   lcd.setCursor(0, 0);

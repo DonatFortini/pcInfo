@@ -28,6 +28,8 @@ def get_fan_values() -> str:
         tuple(int, float): (RPM, watt)
     """
     fan = psutil.sensors_fans()
+    if fan == {}:
+        return "-1 0"
     sum_values = [i.current for i in fan[list(fan.keys())[0]]]
     sorted_values = sorted(sum_values)
     return f"{sorted_values[len(sorted_values)//2]} {len(sorted_values) * 0.5}"
@@ -76,21 +78,20 @@ def get_serial_port() -> str:
 
 def main():
     port = get_serial_port()
+    with serial.Serial(port, baudrate=9600, timeout=1) as ser:
+        while ser.isOpen():
+            cpu_value = get_cpu_values().split(' ')
+            fan_value = get_fan_values().split(' ')
+            ram_value = get_ram_values().split(' ')
+            wifi_value = get_wifi_values().split(' ')
+            data_to_send = f"{cpu_value[0]} {cpu_value[1]} {fan_value[0]} {fan_value[1]} {ram_value[0]} {ram_value[1]} {wifi_value[0]} {wifi_value[1]}"
 
-    while True:
-        cpu_value = get_cpu_values().split(' ')
-        fan_value = get_fan_values().split(' ')
-        ram_value = get_ram_values().split(' ')
-        wifi_value = get_wifi_values().split(' ')
-        data_to_send = f"{cpu_value[0]} {cpu_value[1]} {fan_value[0]} {fan_value[1]} {ram_value[0]} {ram_value[1]} {wifi_value[0]} {wifi_value[1]}"
-
-        try:
-            with serial.Serial(port, baudrate=9600, timeout=1) as ser:
+            try:
                 ser.write(data_to_send.encode())
-        except Exception as e:
-            print(f"Error: {e}")
+            except Exception as e:
+                print(f"Error: {e}")
 
-        time.sleep(2)
+            time.sleep(2)
 
 
 if __name__ == "__main__":
