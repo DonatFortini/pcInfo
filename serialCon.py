@@ -43,6 +43,7 @@ def get_ram_values() -> str:
     """
     ram = psutil.virtual_memory()
     ram_percent = ram.percent
+
     ram_total = ram.total / (1024 ** 3)
     return f"{ram_percent} {ram_total:.1f}"
 
@@ -84,7 +85,7 @@ def main():
             fan_value = get_fan_values().split(' ')
             ram_value = get_ram_values().split(' ')
             wifi_value = get_wifi_values().split(' ')
-            data_to_send = f"{cpu_value[0]} {cpu_value[1]} {fan_value[0]} {fan_value[1]} {ram_value[0]} {ram_value[1]} {wifi_value[0]} {wifi_value[1]}"
+            data_to_send = f"{cpu_value[0]} {cpu_value[1]} {fan_value[0]} {fan_value[1]} {wifi_value[0]} {wifi_value[1]} {ram_value[0]} {ram_value[1]} "
 
             try:
                 ser.write(data_to_send.encode())

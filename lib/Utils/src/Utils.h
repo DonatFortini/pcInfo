@@ -22,6 +22,7 @@ public:
   const char *unit1;
   const char *label2;
   const char *unit2;
+  
 
   SensorData(const char *sName, const char *l1, const char *u1, const char *l2, const char *u2)
       : value1("N/A"), value2("N/A"), sensorName(sName), label1(l1), unit1(u1), label2(l2), unit2(u2)
@@ -36,5 +37,5 @@ public:
 SensorData *initializeSensorData(int mode);
 void readData(int mode, LiquidCrystal_I2C lcd, SensorData *data);
 void displayData(const SensorData *data, LiquidCrystal_I2C lcd);
-
+const char *enumToString(Mode mode);
 #endif

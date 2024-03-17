@@ -1,5 +1,22 @@
 #include "Utils.h"
 
+const char *enumToString(Mode mode)
+{
+  switch (mode)
+  {
+  case CPU:
+    return "CPU";
+  case FAN:
+    return "FAN";
+  case WIFI:
+    return "WIFI";
+  case RAM:
+    return "RAM";
+  default:
+    return "ERR";
+  }
+}
+
 // Initialize the SensorData object based on the mode
 SensorData *initializeSensorData(int mode)
 {
@@ -33,7 +50,6 @@ void readData(int mode, LiquidCrystal_I2C lcd, SensorData *data)
   String values[8];
   String previousValue1 = data->value1;
   String previousValue2 = data->value2;
-  String previousName = data->sensorName;
 
   while (Serial.available())
   {
@@ -52,11 +68,11 @@ void readData(int mode, LiquidCrystal_I2C lcd, SensorData *data)
     values[index] = inputString.substring(start);
   }
 
-  if (true)
-
+  if (strcmp(enumToString(static_cast<Mode>(mode)), data->sensorName) != 0 || previousValue1 != values[0] || previousValue2 != values[1])
   {
     Serial.println("Displaying data");
-    data = new SensorData(data->sensorName, data->label1, data->unit1, data->label2, data->unit2);
+    delete data;
+    data = initializeSensorData(mode);
     switch (mode)
     {
     case CPU:

@@ -8,10 +8,15 @@
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 volatile Mode mode = CPU;
 SensorData *sensorData;
+volatile bool interruptFlag = false;
+
 void changeMode()
 {
-  mode = static_cast<Mode>((mode + 1) % MODE_NUM);
-  Serial.println("interrupt");
+  if (!interruptFlag) {
+    mode = static_cast<Mode>((mode + 1) % MODE_NUM);
+    Serial.println("Mode changed");
+    interruptFlag = true;
+  }
 }
 
 void setup()
@@ -26,6 +31,10 @@ void setup()
 
 void loop()
 {
+  if (interruptFlag) {
+    interruptFlag = false;
+    
+  }
   readData(mode, lcd, sensorData);
   delay(1000);
 }
