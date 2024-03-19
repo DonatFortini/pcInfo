@@ -67,7 +67,9 @@ void readData(int mode, LiquidCrystal_I2C lcd, SensorData *data)
     values[index] = inputString.substring(start);
   }
 
-  if (strcmp(enumToString(static_cast<Mode>(mode)), data->sensorName) != 0 || previousValue1 != values[0] || previousValue2 != values[1])
+  int m = (mode % 4) * 2;
+
+  if (strcmp(enumToString(static_cast<Mode>(mode)), data->sensorName) != 0 || strcmp(previousValue1.c_str(), values[m].c_str()) || strcmp(previousValue2.c_str(), values[m + 1].c_str()))
   {
     delete data;
     data = initializeSensorData(mode);
