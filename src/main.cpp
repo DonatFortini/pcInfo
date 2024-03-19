@@ -12,7 +12,8 @@ volatile bool interruptFlag = false;
 
 void changeMode()
 {
-  if (!interruptFlag) {
+  if (!interruptFlag)
+  {
     mode = static_cast<Mode>((mode + 1) % MODE_NUM);
     interruptFlag = true;
   }
@@ -30,7 +31,7 @@ void setup()
 
 void loop()
 {
-  if (interruptFlag) interruptFlag = false;
+  interruptFlag = (interruptFlag) ? false : interruptFlag;
   readData(mode, lcd, sensorData);
   delay(1000);
 }
