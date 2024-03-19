@@ -14,7 +14,6 @@ void changeMode()
 {
   if (!interruptFlag) {
     mode = static_cast<Mode>((mode + 1) % MODE_NUM);
-    Serial.println("Mode changed");
     interruptFlag = true;
   }
 }
@@ -23,7 +22,7 @@ void setup()
 {
   lcd.init();
   lcd.backlight();
-  Serial.begin(9600); // PC INT2
+  Serial.begin(9600);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), changeMode, FALLING);
   sensorData = initializeSensorData(mode);
@@ -31,10 +30,7 @@ void setup()
 
 void loop()
 {
-  if (interruptFlag) {
-    interruptFlag = false;
-    
-  }
+  if (interruptFlag) interruptFlag = false;
   readData(mode, lcd, sensorData);
   delay(1000);
 }

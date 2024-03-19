@@ -53,7 +53,6 @@ void readData(int mode, LiquidCrystal_I2C lcd, SensorData *data)
 
   while (Serial.available())
   {
-    Serial.println("Reading data");
     String inputString = Serial.readString();
     int index = 0;
     int start = 0;
@@ -70,7 +69,6 @@ void readData(int mode, LiquidCrystal_I2C lcd, SensorData *data)
 
   if (strcmp(enumToString(static_cast<Mode>(mode)), data->sensorName) != 0 || previousValue1 != values[0] || previousValue2 != values[1])
   {
-    Serial.println("Displaying data");
     delete data;
     data = initializeSensorData(mode);
     switch (mode)
